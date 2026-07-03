@@ -2,7 +2,7 @@ name: Daily Rasi Palan
 
 on:
   schedule:
-    - cron: '30 19 * * *' # 01:00 IST — primary run
+    - cron: '35 18 * * *' # 00:05 IST — primary run (early so NZ/Australia mornings are covered)
     - cron: '30 0 * * *'  # 06:00 IST — backup (skips if today already published)
   workflow_dispatch:
     inputs:
