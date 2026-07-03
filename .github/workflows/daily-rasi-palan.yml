@@ -1,0 +1,39 @@
+name: Daily Rasi Palan
+
+on:
+  schedule:
+    - cron: '30 19 * * *' # 01:00 IST — primary run
+    - cron: '30 0 * * *'  # 06:00 IST — backup (skips if today already published)
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Refetch even if today is already published'
+        type: boolean
+        default: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch rasi palan from Prokerala
+        run: node scripts/fetch_rasi_palan.mjs
+        env:
+          PROKERALA_CLIENT_ID: ${{ secrets.PROKERALA_CLIENT_ID }}
+          PROKERALA_CLIENT_SECRET: ${{ secrets.PROKERALA_CLIENT_SECRET }}
+          FORCE: ${{ inputs.force && '1' || '' }}
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add rasi_palan.json
+          git diff --cached --quiet || git commit -m "Update rasi palan $(date -u +%F)"
+          git push
