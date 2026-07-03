@@ -7,12 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       force:
-        description: 'Refetch even if today is already published'
+        description: 'Regenerate even if today is already published'
         type: boolean
         default: false
 
 jobs:
-  fetch:
+  generate:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -23,11 +23,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Fetch rasi palan from Prokerala
-        run: node scripts/fetch_rasi_palan.mjs
+      - name: Generate rasi palan with Gemini
+        run: node scripts/generate_rasi_palan.mjs
         env:
-          PROKERALA_CLIENT_ID: ${{ secrets.PROKERALA_CLIENT_ID }}
-          PROKERALA_CLIENT_SECRET: ${{ secrets.PROKERALA_CLIENT_SECRET }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           FORCE: ${{ inputs.force && '1' || '' }}
 
       - name: Commit and push if changed
